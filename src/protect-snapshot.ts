@@ -167,6 +167,8 @@ export class ProtectSnapshot {
     // -r fps                     Set the input frame rate for the video stream.
     // -probesize number          How many bytes should be analyzed for stream information.
     // -rtsp_transport tcp        Tell the RTSP stream handler that we're looking for a TCP connection.
+    // -rtsp_flags prefer_tcp     Ensure we always use TCP transport when negotiating SRTP streams.
+    // -tls_verify 0              Disable TLS certificate validation for Protect self-signed certificates when using RTSPS.
     // -i rtspEntry.url           RTSPS URL to get our input stream from.
     const ffmpegOptions = [
 
@@ -174,8 +176,15 @@ export class ProtectSnapshot {
       "-r", rtspEntry.channel.fps.toString(),
       "-probesize", this.protectCamera.stream.probesize.toString(),
       "-rtsp_transport", "tcp",
-      "-i", rtspEntry.url
+      "-rtsp_flags", "prefer_tcp"
     ];
+
+    if(rtspEntry.url.startsWith("rtsps://")) {
+
+      ffmpegOptions.push("-tls_verify", "0");
+    }
+
+    ffmpegOptions.push("-i", rtspEntry.url);
 
     return this.snapFromFfmpeg(ffmpegOptions, request);
   }
