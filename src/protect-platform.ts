@@ -32,7 +32,7 @@ export class ProtectPlatform implements DynamicPlatformPlugin {
     this.log = log;
     this.rtpPorts = new RtpPortAllocator();
     this.verboseFfmpeg = false;
-    
+
     const detectedVideoProcessor = config?.videoProcessor ?? resolveDefaultVideoProcessor(log);
 
     // Plugin options into our config variables.
