@@ -575,13 +575,10 @@ export class ProtectStreamingDelegate implements HomebridgeStreamingDelegate {
 
       // -avioflags direct              Tell FFmpeg to minimize buffering to reduce latency for more realtime processing.
       // -rtsp_transport tcp            Tell the RTSP stream handler that we're looking for a TCP connection.
+      // -rtsp_flags prefer_tcp         Ensure we always use TCP for secure RTSP streams to avoid SRTP negotiation issues.
+      // -tls_verify 0                  Disable TLS certificate validation for Protect self-signed certificates.
       // -i rtspEntry.url               RTSPS URL to get our input stream from.
-      ffmpegArgs.push(
-
-        "-avioflags", "direct",
-        "-rtsp_transport", "tcp",
-        "-i", rtspEntry.url
-      );
+      ffmpegArgs.push(...this.getRtspInputOptions(rtspEntry.url));
     }
 
     // -map 0:v:0                       selects the first available video track from the stream. Protect actually maps audio
@@ -1163,6 +1160,26 @@ export class ProtectStreamingDelegate implements HomebridgeStreamingDelegate {
     }
 
     return undefined;
+  }
+
+  // Generate FFmpeg input options for RTSP-based streams, handling secure streams as needed.
+  private getRtspInputOptions(url: string): string[] {
+
+    const rtspOptions = [
+
+      "-avioflags", "direct",
+      "-rtsp_transport", "tcp",
+      "-rtsp_flags", "prefer_tcp"
+    ];
+
+    if(url.startsWith("rtsps://")) {
+
+      rtspOptions.push("-tls_verify", "0");
+    }
+
+    rtspOptions.push("-i", url);
+
+    return rtspOptions;
   }
 
   // Adjust our probe hints.
