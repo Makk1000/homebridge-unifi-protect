@@ -607,9 +607,11 @@ export class ProtectStreamingDelegate implements HomebridgeStreamingDelegate {
 
     hinting.push(...(hinting.length ? [""] : []));
 
+    const rtspProtocol = rtspEntry.url.startsWith("rtsps://") ? "RTSPS" : "RTSP";
+
     this.log.info("%sStreaming request: %sx%s@%sfps, %s. Using %s, %s [%s].", hinting.join(" "), request.video.width, request.video.height, request.video.fps,
       formatBps(targetBitrate * 1000), rtspEntry.name, formatBps(rtspEntry.channel.bitrate),
-      useTsb ? "TSB/" + (this.protectCamera.hasFeature("Debug.Video.HKSV.UseRtsp") ? "RTSP" : "API") : "RTSP");
+      useTsb ? "TSB/" + (this.protectCamera.hasFeature("Debug.Video.HKSV.UseRtsp") ? rtspProtocol : "API") : rtspProtocol);
 
     // When on high-performance hardware like Apple Silicon, using the TSB, and we don't have low-FPS cameras like the package camera, enable the use of the
     // CPU-intensive FFmpeg minterpolate filter to enable very smooth video, especially when there's motion involved. M3+ Apple Silicon environments are able to reliably
