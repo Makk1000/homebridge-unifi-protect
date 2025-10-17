@@ -8,7 +8,7 @@ import { type ProtectOptions, featureOptionCategories, featureOptions } from "./
 import { APIEvent } from "homebridge";
 import { PROTECT_MQTT_TOPIC } from "./settings.js";
 import { ProtectNvr } from "./protect-nvr.js";
-import ffmpegPath from "ffmpeg-for-homebridge";
+import { resolveDefaultVideoProcessor } from "./protect-ffmpeg.js";
 import util from "node:util";
 
 export class ProtectPlatform implements DynamicPlatformPlugin {
@@ -32,6 +32,8 @@ export class ProtectPlatform implements DynamicPlatformPlugin {
     this.log = log;
     this.rtpPorts = new RtpPortAllocator();
     this.verboseFfmpeg = false;
+    
+    const detectedVideoProcessor = config?.videoProcessor ?? resolveDefaultVideoProcessor(log);
 
     // Plugin options into our config variables.
     this.config = {
@@ -41,7 +43,7 @@ export class ProtectPlatform implements DynamicPlatformPlugin {
       options: config?.options ?? [],
       ringDelay: config?.ringDelay ?? 0,
       verboseFfmpeg: config?.verboseFfmpeg === true,
-      videoProcessor: config?.videoProcessor ?? ffmpegPath ?? "ffmpeg"
+      videoProcessor: detectedVideoProcessor ?? "ffmpeg"
     };
 
     // We need a UniFi Protect controller configured to do anything.
