@@ -81,9 +81,15 @@ function runFfmpegInstaller(log: Logging): string | undefined {
 
 export function resolveDefaultVideoProcessor(log: Logging): string | undefined {
 
-  const dependencyBinary = ffmpegForHomebridge as (string | undefined);
-  const bundledPath = dependencyBinary ?? locateBundledFfmpeg();
+  const dependencyBinary = ffmpegForHomebridge as unknown;
 
+  if(typeof dependencyBinary === "string") {
+
+    return dependencyBinary;
+  }
+
+  const bundledPath = locateBundledFfmpeg();
+  
   if(bundledPath) {
 
     return bundledPath;
